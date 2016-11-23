@@ -58,6 +58,8 @@ def lookup_customer(customer_data):
     })
 
     print(response)
-    r = response.body.readResponse
+    r = response.body.searchResult
     if r.status.isSuccess:
-        return r
+        records = r.recordList.record
+        if len(records) > 0:
+            return records[0]
