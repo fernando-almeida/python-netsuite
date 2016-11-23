@@ -8,18 +8,21 @@ Example usage
 -------------
 ::
 
-    from connect import login_client
-    client, passport, app_info = login_client()
+    from netsuite.client import client
+    from netsuite.service import RecordRef
 
-    Record = client.get_type('ns1:RecordRef')
 
-    # print names of customers
-    for i in range(100):
-        record = Record(internalId=i, type='customer')
+    def get_customer_name(internal_id):
+        record = RecordRef(internalId=internal_id, type='customer')
         response = client.service.get(record)
         r = response.body.readResponse
         if r.status.isSuccess:
-            print(r.record.firstName, '', r.record.lastName)
+            return '%s %s' % (r.record.firstName, r.record.lastName)
+
+
+    # print names of first 100 customers
+    for internal_id in range(100):
+        print(get_customer_name(internal_id))
 
 NetSuite Documentation
 ----------------------
