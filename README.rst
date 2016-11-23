@@ -23,3 +23,12 @@ NetSuite Documentation
 * `Schema Browser (CashSale example) <http://www.netsuite.com/help/helpcenter/en_US/srbrowser/Browser2016_2/schema/record/cashsale.html?mode=package>`_
 
 
+Obtain WSDL export to look at
+-----------------------------
+
+.. code:: bash
+    mkdir archive
+    python3 -mzeep https://webservices.sandbox.netsuite.com/wsdl/v2016_1_0/netsuite.wsdl > archive/wsdl.txt
+    # improve formatting
+    sed -i -e 's/, /, \n          /g' archive/wsdl.txt
+    less archive/wsdl.txt

@@ -5,9 +5,11 @@ Proceed to CashSale.
 
 from netsuite.client import client
 from netsuite.test_data import data
+from netsuite.utils import get_record_by_type
 from netsuite.service import (Customer,
-                              CustomerSearch,
-                              RecordRef)
+                              CustomerSearchBasic,
+                              SearchPreferences,
+                              SearchStringField)
 
 
 customer_data = {
@@ -33,19 +35,27 @@ def get_or_create_customer(customer_data):
 
 
 def get_customer(internal_id):
-    record = RecordRef(internalId=internal_id, type='customer')
-    response = client.service.get(record)
-    r = response.body.readResponse
-    if r.status.isSuccess:
-        return r.record
+    return get_record_by_type('customer', internal_id)
 
 
 def lookup_customer(customer_data):
-    pass
+    d = {}
+    for k, v in customer_data.items():
+        d[k] = SearchStringField(searchValue=v,
+                                 operator='is')
+    customer_search = CustomerSearchBasic(**d)
 
-    # customer_search = CustomerSearch(**customer_data)
-    # response = client.service.get(record)
-    # print(response)
-    # r = response.body.readResponse
-    # if r.status.isSuccess:
-    #     return r.record.internalId
+    search_preferences = SearchPreferences(bodyFieldsOnly=False,
+                                           returnSearchColumns=True,
+                                           pageSize=20)
+
+    response = client.service.search(searchRecord=item_search, _soapheaders={
+        'searchPreferences': search_preferences,
+        'applicationInfo': app_info,
+        'passport': passport,
+    })
+
+    print(response)
+    r = response.body.readResponse
+    if r.status.isSuccess:
+        return r

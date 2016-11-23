@@ -6,6 +6,10 @@ from netsuite.service import (ItemSearchBasic,
                               SearchPreferences,
                               SearchMultiSelectField,
                               RecordRef)
+from netsuite.utils import get_record_by_type
+
+def get_product(internal_id):
+    return get_record_by_type('inventoryItem', internal_id)
 
 
 def list_products(internal_ids):

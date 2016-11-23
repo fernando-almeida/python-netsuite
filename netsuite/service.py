@@ -1,15 +1,25 @@
 from zeep import Client
+from zeep.cache import SqliteCache
+from zeep.transports import Transport
+
 import ns_config
 
-client = Client(ns_config.WSDL_URL)
+# cache WSDL and XSD for a year
+cache = SqliteCache(timeout=60*60*24*365)
+transport = Transport(cache=cache)
+client = Client(ns_config.WSDL_URL, transport=transport)
 
-Passport = client.get_type('ns1:Passport')
-RecordRef = client.get_type('ns1:RecordRef')
-ApplicationInfo = client.get_type('ns5:ApplicationInfo')
-CustomerSearch = client.get_type('ns14:CustomerSearch')
-ItemSearchBasic = client.get_type('ns6:ItemSearchBasic')
-SearchPreferences = client.get_type('ns5:SearchPreferences')
-SearchBooleanField = client.get_type('ns1:SearchBooleanField')
-CashSale = client.get_type('ns20:CashSale')
-Customer = client.get_type('ns14:Customer')
-SearchMultiSelectField = client.get_type('ns1:SearchMultiSelectField')
+model = client.get_type
+
+Passport = model('ns1:Passport')
+RecordRef = model('ns1:RecordRef')
+ApplicationInfo = model('ns5:ApplicationInfo')
+CustomerSearchBasic = model('ns6:CustomerSearchBasic')
+ItemSearchBasic = model('ns6:ItemSearchBasic')
+SearchPreferences = model('ns5:SearchPreferences')
+SearchBooleanField = model('ns1:SearchBooleanField')
+SearchStringField = model('ns1:SearchStringField')
+SearchStringFieldOperator = model('ns2:SearchStringFieldOperator')
+CashSale = model('ns20:CashSale')
+Customer = model('ns14:Customer')
+SearchMultiSelectField = model('ns1:SearchMultiSelectField')
