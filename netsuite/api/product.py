@@ -5,7 +5,12 @@ from netsuite.client import client, passport, app_info
 from netsuite.service import (ItemSearchBasic,
                               SearchBooleanField,
                               SearchPreferences)
+from netsuite.utils import get_record_by_type
 from lxml import etree
+
+
+def get_product(internal_id):
+    return get_record_by_type('inventoryItem', internal_id)
 
 
 def find_products():

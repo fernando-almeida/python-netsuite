@@ -1,3 +1,7 @@
+from netsuite.client import client
+from netsuite.service import RecordRef
+
+
 class obj(object):
     """Dictionary to object utility.
 
@@ -15,3 +19,10 @@ class obj(object):
                setattr(self, a, obj(b)
                    if isinstance(b, dict) else b)
 
+
+def get_record_by_type(type, internal_id):
+    record = RecordRef(internalId=internal_id, type=type)
+    response = client.service.get(record)
+    r = response.body.readResponse
+    if r.status.isSuccess:
+        return r.record
