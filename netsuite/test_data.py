@@ -1,11 +1,10 @@
 from netsuite.utils import obj
 
 test_data = {
-        'line_items': [
-		['Product1', 5],
-		['Product2', 2]
+    'line_items': [
+		{'internal_id': 21, 'quantity': 1},
+		{'internal_id': 22, 'quantity': 2}
 	],
-
 	'first_name': 'Joe',
 	'last_name': 'Bloggs',
 	'phone_country': '1',

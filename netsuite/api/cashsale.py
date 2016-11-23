@@ -18,7 +18,7 @@ def test_cashsale(o):
                 # ...
         ],
         'entity': {},  # customer
-        'email': 'email',
+        'email': o.email,
         'shipAddressList': [{
                 'addressee': '%s %s' % (o.first_name, o.last_name),
                 'phone': '%s %s' % (o.phone_country, o.phone_number),
