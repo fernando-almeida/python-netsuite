@@ -26,7 +26,8 @@ NetSuite Documentation
 Obtain WSDL export to look at
 -----------------------------
 
-.. code:: python
+.. code:: bash
+
     mkdir archive
     python3 -mzeep https://webservices.sandbox.netsuite.com/wsdl/v2016_1_0/netsuite.wsdl > archive/wsdl.txt
     # improve formatting
