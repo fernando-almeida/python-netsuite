@@ -1,4 +1,4 @@
-from utils import obj
+from netsuite.utils import obj
 
 test_data = {
         'line_items': [
