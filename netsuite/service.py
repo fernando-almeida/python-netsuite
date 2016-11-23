@@ -1,6 +1,7 @@
 from zeep import Client
 from zeep.cache import SqliteCache
 from zeep.transports import Transport
+
 import ns_config
 
 # cache WSDL and XSD for a year
@@ -21,3 +22,4 @@ SearchStringField = model('ns1:SearchStringField')
 SearchStringFieldOperator = model('ns2:SearchStringFieldOperator')
 CashSale = model('ns20:CashSale')
 Customer = model('ns14:Customer')
+SearchMultiSelectField = model('ns1:SearchMultiSelectField')
