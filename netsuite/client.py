@@ -5,19 +5,23 @@ from netsuite.service import (client,
                               Passport)
 
 
-def login():
+def make_passport():
     role = RecordRef(internalId=ns_config.NS_ROLE)
-    app_info = ApplicationInfo(applicationId=ns_config.NS_APPID)
-    passport = Passport(email=ns_config.NS_EMAIL,
-                        password=ns_config.NS_PASSWORD,
-                        account=ns_config.NS_ACCOUNT,
-                        role=role)
+    return Passport(email=ns_config.NS_EMAIL,
+                    password=ns_config.NS_PASSWORD,
+                    account=ns_config.NS_ACCOUNT,
+                    role=role)
 
+
+def login():
+    app_info = ApplicationInfo(applicationId=ns_config.NS_APPID)
+    passport = make_passport()
     login = client.service.login(passport=passport,
                 _soapheaders={'applicationInfo': app_info})
 
     print('Login Response: ', login.status)
-    return client, passport, app_info
+    return client, app_info
 
 
-client, passport, app_info = login()
+passport = make_passport()
+client, app_info = login()
