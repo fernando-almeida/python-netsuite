@@ -6,7 +6,8 @@ Proceed to CashSale.
 from netsuite.client import client
 from netsuite.test_data import data
 from netsuite.service import (Customer,
-                              CustomerSearch)
+                              CustomerSearch,
+                              RecordRef)
 
 
 customer_data = {
@@ -32,7 +33,11 @@ def get_or_create_customer(customer_data):
 
 
 def get_customer(internal_id):
-    pass
+    record = RecordRef(internalId=internal_id, type='customer')
+    response = client.service.get(record)
+    r = response.body.readResponse
+    if r.status.isSuccess:
+        return r.record
 
 
 def lookup_customer(customer_data):

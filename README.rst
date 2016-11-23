@@ -9,20 +9,13 @@ Copy :code:`ns_config.py.txt` into :code:`ns_config.py` and update with your cre
 .. code:: python
 
     from netsuite.client import client
-    from netsuite.service import RecordRef
-
-
-    def get_customer_name(internal_id):
-        record = RecordRef(internalId=internal_id, type='customer')
-        response = client.service.get(record)
-        r = response.body.readResponse
-        if r.status.isSuccess:
-            return '%s %s' % (r.record.firstName, r.record.lastName)
-
+    from netsuite.api.customer import get_customer
 
     # print names of first 100 customers
     for internal_id in range(100):
-        print(get_customer_name(internal_id))
+        customer = get_customer(internal_id)
+        if customer:
+            print(customer.firstName, customer.lastName)
 
 NetSuite Documentation
 ----------------------
