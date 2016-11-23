@@ -1,25 +1,21 @@
 """
 Benchmark user journeys of 2,000 customers
 """
+from netsuite.client import client
+from netsuite.service import RecordRef
 
 from collections import Counter
 from pprint import pprint
 from time import time
 
-from netsuite.connect import login_client
-
-print('Logging in.')
-client, passport, app_info = login_client()
-
 
 def benchmark(customer_range=2000):
     print('Getting user journey statistics on first %s customers' % customer_range)
-    print('This could take an hour.')
+    print('This could take an while.')
     now = time()
-    Record = client.get_type('ns1:RecordRef')
     paths = []
     for i in range(customer_range):
-        record = Record(internalId=i, type='customer')
+        record = RecordRef(internalId=i, type='customer')
         response = client.service.get(record)
         r = response.body.readResponse
         if r.status.isSuccess:

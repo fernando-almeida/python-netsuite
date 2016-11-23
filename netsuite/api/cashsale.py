@@ -1,8 +1,7 @@
-from netsuite.connect import login_client
+from netsuite.client import client
+from netsuite.service import CashSale
 
-client, passport, app_info = login_client()
 
-CashSale = client.get_type('ns20:CashSale')
 cash_sale = CashSale(
     entity='test'
 )

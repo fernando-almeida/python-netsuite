@@ -3,10 +3,11 @@ Add a customer, lookup customer if adding fails with UNIQUE_CUST_ID_REQD.
 Proceed to CashSale.
 """
 
-from netsuite.connect import login_client
+from netsuite.client import client
 from netsuite.test_data import data
+from netsuite.service import (Customer,
+                              CustomerSearch)
 
-client, passport, app_info = login_client()
 
 customer_data = {
     'lastName': data.first_name,
@@ -17,8 +18,6 @@ customer_data = {
 
 
 def get_or_create_customer(customer_data):
-    Customer = client.get_type('ns14:Customer')
-
     customer = Customer(**customer_data)
     # add a customer
     response = client.service.add(customer)
@@ -28,14 +27,18 @@ def get_or_create_customer(customer_data):
         internal_id = r.baseRef.internalId
         print('Customer added successfully with #%s' % internal_id)
         return internal_id
-    else:
+    elif r.status.statusDetail[0].code == 'UNIQUE_CUST_ID_REQD':
         return lookup_customer(customer_data)
 
 
+def get_customer(internal_id):
+    pass
+
+
 def lookup_customer(customer_data):
-    CustomerSearch = client.get_type('ns14:CustomerSearch')
-    customer_search = CustomerSearch(**customer_data)
-    #
+    pass
+
+    # customer_search = CustomerSearch(**customer_data)
     # response = client.service.get(record)
     # print(response)
     # r = response.body.readResponse
