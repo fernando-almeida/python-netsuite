@@ -2,10 +2,11 @@
 Benchmark user journeys of 2,000 customers
 """
 
-from connect import login_client
 from collections import Counter
 from pprint import pprint
 from time import time
+
+from netsuite.connect import login_client
 
 print('Logging in.')
 client, passport, app_info = login_client()

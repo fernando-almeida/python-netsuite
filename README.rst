@@ -2,7 +2,7 @@ Python Netsuite
 ===============
 Netsuite Python Toolkit for SuiteTalk SOAP API.
 
-Copy `config.py.txt` into `config.py` and add your credentials.
+Copy `ns_config.py.txt` into `ns_config.py` and add your credentials.
 
 Example usage
 -------------

@@ -1,11 +1,9 @@
 """
 Product search
 """
-
-from connect import *
+from netsuite.connect import login_client
 from lxml import etree
 
-print('Logging in.')
 client, passport, app_info = login_client()
 
 

@@ -1,19 +1,19 @@
 from zeep import Client
-import config
+import ns_config
 
 
 def login_client():
-    client = Client(config.WSDL_URL)
+    client = Client(ns_config.WSDL_URL)
 
     Record = client.get_type('ns1:RecordRef')
     AppInfo = client.get_type('ns5:ApplicationInfo')
     Passport = client.get_type('ns1:Passport')
 
-    role = Record(internalId=config.NS_ROLE)
-    app_info = AppInfo(applicationId=config.NS_APPID)
-    passport = Passport(email=config.NS_EMAIL,
-                        password=config.NS_PASSWORD,
-                        account=config.NS_ACCOUNT,
+    role = Record(internalId=ns_config.NS_ROLE)
+    app_info = AppInfo(applicationId=ns_config.NS_APPID)
+    passport = Passport(email=ns_config.NS_EMAIL,
+                        password=ns_config.NS_PASSWORD,
+                        account=ns_config.NS_ACCOUNT,
                         role=role)
 
     login = client.service.login(passport=passport,

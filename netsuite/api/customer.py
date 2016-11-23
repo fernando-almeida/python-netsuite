@@ -3,8 +3,8 @@ Add a customer, lookup customer if adding fails with UNIQUE_CUST_ID_REQD.
 Proceed to CashSale.
 """
 
-from connect import login_client
-from test_data import data
+from netsuite.connect import login_client
+from netsuite.test_data import data
 
 client, passport, app_info = login_client()
 
@@ -41,9 +41,3 @@ def lookup_customer(customer_data):
     # r = response.body.readResponse
     # if r.status.isSuccess:
     #     return r.record.internalId
-
-
-CashSale = client.get_type('ns20:CashSale')
-cash_sale = CashSale(
-    entity=
-)

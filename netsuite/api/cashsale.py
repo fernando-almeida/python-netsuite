@@ -1,4 +1,14 @@
-def netsuite_cashsale_smartbuy_map(o):
+from netsuite.connect import login_client
+
+client, passport, app_info = login_client()
+
+CashSale = client.get_type('ns20:CashSale')
+cash_sale = CashSale(
+    entity='test'
+)
+
+
+def test_cashsale(o):
     """
     Map Smartbuy data to NetSuite CashSale
     """
@@ -30,4 +40,3 @@ def netsuite_cashsale_smartbuy_map(o):
         'ccName': o.credit_card_owner,
         'ccSecurityCode': o.cvc2
     }
-
