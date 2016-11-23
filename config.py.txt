@@ -1,0 +1,7 @@
+WSDL_URL = 'https://webservices.sandbox.netsuite.com/wsdl/v2016_1_0/netsuite.wsdl'
+NS_EMAIL= 'admin@example.com'
+NS_PASSWORD = '*********'
+NS_ROLE = '1111'
+NS_ACCOUNT = '1111111'
+NS_APPID = 'FFFFFFFF-FFFF-0000-0000-FFFFFFFFFFFF'
+
