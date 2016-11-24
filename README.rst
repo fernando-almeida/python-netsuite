@@ -22,9 +22,10 @@ NetSuite Documentation
 * `SuiteTalk Documentation <http://www.netsuite.com/portal/developers/resources/suitetalk-documentation.shtml>`_
 * `Schema Browser (CashSale example) <http://www.netsuite.com/help/helpcenter/en_US/srbrowser/Browser2016_2/schema/record/cashsale.html?mode=package>`_
 
+Development
+===========
 
-Obtain WSDL export to look at
------------------------------
+* Get Netsuite WSDL export to look at
 
 .. code:: bash
 
@@ -33,3 +34,10 @@ Obtain WSDL export to look at
     # improve formatting
     sed -i -e 's/, /, \n          /g' archive/wsdl.txt
     less archive/wsdl.txt
+
+* Add needed Netsuite models you need to work with based on WSDL to
+:code:`netsuite/service.py`.
+* Add functions to get, create and lookup these model instances in a
+:code:`netsuite/api/[model].py`.
+* Add tests to :code:`netsuite/tests.py` and run them with
+:code:`./netsuite/tests.py`
