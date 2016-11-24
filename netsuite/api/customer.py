@@ -3,14 +3,17 @@ Add a customer, lookup customer if adding fails with UNIQUE_CUST_ID_REQD.
 Proceed to CashSale.
 """
 
-from netsuite.client import client, passport, app_info
+from netsuite.client import client
 from netsuite.test_data import data
-from netsuite.utils import get_record_by_type
-from netsuite.service import (Customer,
-                              CustomerSearchBasic,
-                              SearchPreferences,
-                              SearchStringField)
-
+from netsuite.utils import (
+    get_record_by_type,
+    search_records_using
+)
+from netsuite.service import (
+    Customer,
+    CustomerSearchBasic,
+    SearchStringField
+)
 
 customer_data = {
     'lastName': data.first_name,
@@ -46,18 +49,8 @@ def lookup_customer(customer_data):
         d[k] = SearchStringField(searchValue=v, operator='is')
 
     customer_search = CustomerSearchBasic(**d)
+    response = result = search_records_using(customer_search)
 
-    search_preferences = SearchPreferences(bodyFieldsOnly=False,
-                                           returnSearchColumns=True,
-                                           pageSize=20)
-
-    response = client.service.search(searchRecord=customer_search, _soapheaders={
-        'searchPreferences': search_preferences,
-        'applicationInfo': app_info,
-        'passport': passport,
-    })
-
-    print(response)
     r = response.body.searchResult
     if r.status.isSuccess:
         records = r.recordList.record

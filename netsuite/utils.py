@@ -1,5 +1,5 @@
-from netsuite.client import client
-from netsuite.service import RecordRef
+from netsuite.client import client, app_info, passport
+from netsuite.service import RecordRef, SearchPreferences
 
 
 class obj(object):
@@ -26,3 +26,15 @@ def get_record_by_type(type, internal_id):
     r = response.body.readResponse
     if r.status.isSuccess:
         return r.record
+
+
+def search_records_using(searchtype):
+    search_preferences = SearchPreferences(bodyFieldsOnly=False,
+                                           returnSearchColumns=True,
+                                           pageSize=20)
+
+    return client.service.search(searchRecord=searchtype, _soapheaders={
+        'searchPreferences': search_preferences,
+        'applicationInfo': app_info,
+        'passport': passport,
+    })
