@@ -36,3 +36,10 @@ test_data = {
 
 data = obj(test_data)
 
+customer_data = {
+    'lastName': data.first_name,
+    'firstName': data.last_name,
+    'phone': '%s%s' % (data.phone_country, data.phone_number),
+    'email': data.email
+}
+
