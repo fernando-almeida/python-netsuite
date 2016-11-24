@@ -16,14 +16,11 @@ from netsuite.service import (
 
 def get_or_create_customer(customer_data):
     customer = Customer(**customer_data)
-    # add a customer
     response = client.service.add(customer)
     print(response)
     r = response.body.writeResponse
     if r.status.isSuccess:
-        internal_id = r.baseRef.internalId
-        print('Customer added successfully with #%s' % internal_id)
-        return internal_id
+        return r.baseRef.internalId
     elif r.status.statusDetail[0].code == 'UNIQUE_CUST_ID_REQD':
         return lookup_customer_by_name_and_email(customer_data)
 

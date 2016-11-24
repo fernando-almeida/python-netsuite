@@ -1,5 +1,16 @@
 from netsuite.client import client
-from netsuite.service import CashSale
+from netsuite.service import (
+    CashSale,
+    Address,
+)
+from netsuite.api.customer import get_or_create_customer
+
+def create_address(address_data):
+    address = Address(**address_data)
+    response = client.service.add(address)
+    r = response.body.writeResponse
+    if r.status.isSuccess:
+        return r.baseRef.internalId
 
 
 cash_sale = CashSale(
@@ -7,10 +18,14 @@ cash_sale = CashSale(
 )
 
 
-def test_cashsale(o):
+
+
+def create_cashsale(data):
     """
     Map Smartbuy data to NetSuite CashSale
     """
+    o = data
+
     return {
         'itemList': [ # CashSaleItem
                 {'item': {'externalId': 'SOME_SKU'},
@@ -19,16 +34,7 @@ def test_cashsale(o):
         ],
         'entity': {},  # customer
         'email': o.email,
-        'shipAddressList': [{
-                'addressee': '%s %s' % (o.first_name, o.last_name),
-                'phone': '%s %s' % (o.phone_country, o.phone_number),
-                'addr1': o.address_line_1,
-                'addr2': o.address_line_2,
-                'state': o.region,
-                'city': o.city,
-                'zip': o.zip_code,
-                'country': '__unitedStates'
-        }],
+        'shipAddressList': [],
 
         # 'billAddressList' 'billingAddress': ...
 

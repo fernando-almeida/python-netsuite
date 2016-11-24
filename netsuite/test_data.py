@@ -43,3 +43,12 @@ customer_data = {
     'email': data.email
 }
 
+address_data = {
+    'addressee': '%s %s' % (data.first_name, data.last_name),
+    'addr1': data.address_line_1,
+    'addr2': data.address_line_2,
+    'state': data.region,
+    'city': data.city,
+    'zip': data.zip_code,
+    'country': '__unitedStates'
+}
