@@ -33,28 +33,26 @@ def create_cashsale(data):
     """
     Map Smartbuy data to NetSuite CashSale
     """
-    o = data
-
     raw_item = [
         CashSaleItem(
             item=get_item_reference(item),
             quantity=item.quantity
-        ) for item in o.line_items
+        ) for item in data.line_items
     ]
     item_list = CashSaleItemList(item=raw_item)
-    import ipdb;ipdb.set_trace()
+
     return {
         'itemList': item_list,
         'entity': {},  # customer
-        'email': o.email,
+        'email': data.email,
         'shipAddressList': [],
 
         # 'billAddressList' 'billingAddress': ...
 
         'ccExpireDate': '{:02}/{}' % (
-                                o.expiration_date_month +\
-                                o.expiration_date_year),
-        'ccNumber': o.credit_card_number,
-        'ccName': o.credit_card_owner,
-        'ccSecurityCode': o.cvc2
+                                data.expiration_date_month +\
+                                data.expiration_date_year),
+        'ccNumber': data.credit_card_number,
+        'ccName': data.credit_card_owner,
+        'ccSecurityCode': data.cvc2
     }
