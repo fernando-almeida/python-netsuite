@@ -2,7 +2,6 @@
 Add a customer, lookup customer if adding fails with UNIQUE_CUST_ID_REQD.
 Proceed to CashSale.
 """
-
 from netsuite.client import client
 from netsuite.test_data import data
 from netsuite.utils import (
