@@ -40,7 +40,7 @@ def prepare_customer_data(data):
     }
 
 
-def prepare_address_data(addressee, address):
+def prepare_address(addressee, address):
     return {
         'addressee': addressee,
         'addr1': address.address_line_1,

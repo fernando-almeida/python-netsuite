@@ -6,12 +6,8 @@ from netsuite.service import (
     CashSaleItemList,
     RecordRef
 )
-from netsuite.utils import get_record_by_type
 from netsuite.api.customer import get_or_create_customer
-
-
-def get_address(internal_id):
-    return get_record_by_type('address', internal_id)
+from netsuite.test_data import prepare_address, prepare_customer_data
 
 
 def get_item_reference(item):
@@ -21,22 +17,11 @@ def get_item_reference(item):
     )
 
 
-def create_address(address_data):
-    address = Address(**address_data)
-    response = client.service.add(address)
-    r = response.body.writeResponse
-    if r.status.isSuccess:
-        internal_id = r.baseRef.internalId
-    print(response)
-    return get_address(internal_id)
-
-
-#cash_sale = CashSale(entity='test')
-
 def create_cashsale(data):
-    """
-    Map Smartbuy data to NetSuite CashSale
-    """
+    addressee = '%s %s' % (data.first_name, data.last_name)
+    shipping_address = prepare_address(addressee, data.shipping_address)
+    billing_address = prepare_address(addressee, data.billing_address)
+
     raw_item = [
         CashSaleItem(
             item=get_item_reference(item),
@@ -45,12 +30,12 @@ def create_cashsale(data):
     ]
     item_list = CashSaleItemList(item=raw_item)
 
-    return {
+    cash_sale_data = {
         'itemList': item_list,
-        'entity': {},  # customer
+        'entity': get_or_create_customer(prepare_customer_data(data)),
         'email': data.email,
-        'shipAddressList': [],
-        'billAddressList': ['billingAddress'],
+        'shipAddressList': [Address(**shipping_address)],
+        'billAddressList': [Address(**billing_address)],
 
         'ccExpireDate': '{:02}/{}' % (
                                 data.expiration_date_month +\
@@ -59,3 +44,9 @@ def create_cashsale(data):
         'ccName': data.credit_card_owner,
         'ccSecurityCode': data.cvc2
     }
+    cash_sale = CashSale(**cash_sale_data)
+    response = client.service.add(cash_sale)
+    r = response.body.writeResponse
+    if r.status.isSuccess:
+        print(r)
+        return r
