@@ -8,6 +8,7 @@ from netsuite.service import (
 )
 from netsuite.api.customer import get_or_create_customer
 from netsuite.test_data import prepare_address, prepare_customer_data
+from datetime import datetime
 
 
 def get_item_reference(item):
@@ -29,24 +30,29 @@ def create_cashsale(data):
         ) for item in data.line_items
     ]
     item_list = CashSaleItemList(item=raw_item)
-
+    #import ipdb;ipdb.set_trace()
+    customer = get_or_create_customer(prepare_customer_data(data))
+    print('****************customer**********', customer)
     cash_sale_data = {
         'itemList': item_list,
-        'entity': get_or_create_customer(prepare_customer_data(data)),
+        'entity': RecordRef(internalId=customer.internalId),
         'email': data.email,
-        'shipAddressList': [Address(**shipping_address)],
-        'billAddressList': [Address(**billing_address)],
-
-        'ccExpireDate': '{:02}/{}' % (
-                                data.expiration_date_month +\
-                                data.expiration_date_year),
+        'shippingAddress': Address(**shipping_address),
+        'billingAddress': Address(**billing_address),
+        'ccExpireDate': datetime(
+            int(data.expiration_date_year),
+            int(data.expiration_date_month),
+            1
+        ),
         'ccNumber': data.credit_card_number,
         'ccName': data.credit_card_owner,
         'ccSecurityCode': data.cvc2
     }
     cash_sale = CashSale(**cash_sale_data)
+    from lxml import etree
+    print(etree.tostring(client.service._binding.create_message('add', cash_sale)))
     response = client.service.add(cash_sale)
     r = response.body.writeResponse
+    print(r)
     if r.status.isSuccess:
-        print(r)
         return r

@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 import unittest
 
-from netsuite.api.customer import get_or_create_customer
+from netsuite.api.customer import (
+    get_or_create_customer,
+    get_customer
+)
 from netsuite.api.cashsale import create_cashsale
+
 
 from netsuite.test_data import (
     data,
