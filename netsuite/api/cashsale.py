@@ -1,9 +1,25 @@
 from netsuite.client import client
 from netsuite.service import (
-    CashSale,
     Address,
+    CashSale,
+    CashSaleItem,
+    CashSaleItemList,
+    RecordRef
 )
 from netsuite.api.customer import get_or_create_customer
+
+'''
+cash_sale = CashSale(
+    entity='test'
+)
+'''
+
+def get_item_reference(item):
+    return RecordRef(
+        internalId=item.internal_id,
+        type='inventoryItem'
+    )
+
 
 def create_address(address_data):
     address = Address(**address_data)
@@ -13,25 +29,22 @@ def create_address(address_data):
         return r.baseRef.internalId
 
 
-cash_sale = CashSale(
-    entity='test'
-)
-
-
-
-
 def create_cashsale(data):
     """
     Map Smartbuy data to NetSuite CashSale
     """
     o = data
 
+    raw_item = [
+        CashSaleItem(
+            item=get_item_reference(item),
+            quantity=item.quantity
+        ) for item in o.line_items
+    ]
+    item_list = CashSaleItemList(item=raw_item)
+    import ipdb;ipdb.set_trace()
     return {
-        'itemList': [ # CashSaleItem
-                {'item': {'externalId': 'SOME_SKU'},
-                 'quantity': 'SOME_QUANTITY'},
-                # ...
-        ],
+        'itemList': item_list,
         'entity': {},  # customer
         'email': o.email,
         'shipAddressList': [],
