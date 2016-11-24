@@ -37,8 +37,8 @@ test_data = {
 data = obj(test_data)
 
 customer_data = {
-    'lastName': data.first_name,
-    'firstName': data.last_name,
+    'firstName': data.first_name,
+    'lastName': data.last_name,
     'phone': '%s%s' % (data.phone_country, data.phone_number),
     'email': data.email
 }
@@ -49,6 +49,6 @@ address_data = {
     'addr2': data.address_line_2,
     'state': data.region,
     'city': data.city,
-    'zip': data.zip_code,
+    'zip': data.zip_code.upper(),
     'country': '__unitedStates'
 }

@@ -37,4 +37,4 @@ Development
 
 * Add Netsuite models you need to work with based on WSDL to :code:`netsuite/service.py`.
 * Add functions to get, create, lookup... these model instances to :code:`netsuite/api/[model].py`.
-* Add tests to :code:`netsuite/tests.py`. Run tests using :code:`./netsuite/tests.py`
+* Add tests to :code:`tests.py`. Run tests using :code:`./tests.py`
