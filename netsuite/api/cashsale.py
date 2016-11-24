@@ -3,21 +3,25 @@ from netsuite.service import (
     CashSale,
     Address,
 )
+from netsuite.utils import get_record_by_type
 from netsuite.api.customer import get_or_create_customer
+
+
+def get_address(internal_id):
+    return get_record_by_type('address', internal_id)
+
 
 def create_address(address_data):
     address = Address(**address_data)
     response = client.service.add(address)
     r = response.body.writeResponse
     if r.status.isSuccess:
-        return r.baseRef.internalId
+        internal_id = r.baseRef.internalId
+    print(response)
+    return get_address(internal_id)
 
 
-cash_sale = CashSale(
-    entity='test'
-)
-
-
+#cash_sale = CashSale(entity='test')
 
 
 def create_cashsale(data):
@@ -32,11 +36,10 @@ def create_cashsale(data):
                  'quantity': 'SOME_QUANTITY'},
                 # ...
         ],
-        'entity': {},  # customer
+        'entity': get_or_create_customer(o),  # customer
         'email': o.email,
         'shipAddressList': [],
-
-        # 'billAddressList' 'billingAddress': ...
+        'billAddressList': ['billingAddress'],
 
         'ccExpireDate': '{:02}/{}' % (
                                 o.expiration_date_month +\
