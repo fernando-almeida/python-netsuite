@@ -23,7 +23,7 @@ NetSuite Documentation
 * `Schema Browser (CashSale example) <http://www.netsuite.com/help/helpcenter/en_US/srbrowser/Browser2016_2/schema/record/cashsale.html?mode=package>`_
 
 Development
-===========
+-----------
 
 * Get Netsuite WSDL export to look at
 
