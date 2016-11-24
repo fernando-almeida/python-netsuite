@@ -49,6 +49,6 @@ address_data = {
     'addr2': data.address_line_2,
     'state': data.region,
     'city': data.city,
-    'zip': data.zip_code,
+    'zip': data.zip_code.upper(),
     'country': '__unitedStates'
 }
