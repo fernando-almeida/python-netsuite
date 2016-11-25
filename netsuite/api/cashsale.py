@@ -9,6 +9,7 @@ from netsuite.service import (
 from netsuite.api.customer import get_or_create_customer
 from netsuite.test_data import prepare_address, prepare_customer_data
 from datetime import datetime
+from lxml import etree
 
 
 def get_item_reference(item):
