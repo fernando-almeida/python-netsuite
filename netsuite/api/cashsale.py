@@ -1,4 +1,4 @@
-from netsuite.client import client
+from netsuite.client import client, passport, app_info
 from netsuite.service import (
     Address,
     CashSale,
@@ -30,7 +30,6 @@ def create_cashsale(data):
         ) for item in data.line_items
     ]
     item_list = CashSaleItemList(item=raw_item)
-    #import ipdb;ipdb.set_trace()
     customer = get_or_create_customer(prepare_customer_data(data))
     print('****************customer**********', customer)
     cash_sale_data = {
@@ -51,9 +50,14 @@ def create_cashsale(data):
 
     }
     cash_sale = CashSale(**cash_sale_data)
-    from lxml import etree
-    print(etree.tostring(client.service._binding.create_message('add', cash_sale)))
-    response = client.service.add(cash_sale)
+    response = client.service.add(cash_sale, _soapheaders={
+        'passport': passport,
+        'applicationInfo': app_info
+    })
+    print(etree.tostring(client.service._binding.create_message('add', cash_sale, _soapheaders={
+        'passport': passport,
+        'applicationInfo': app_info
+    })))
     r = response.body.writeResponse
     print(r)
     if r.status.isSuccess:
