@@ -24,7 +24,8 @@ test_data = {
 	'credit_card_owner': 'J. Bloggs',
 	'expiration_date_month': '1',
 	'expiration_date_year': '2018',
-	'cvc2': '333'
+	'cvc2': '333',
+	'shipping_cost': 7.99
 }
 test_data['billing_address'] = test_data['shipping_address']
 

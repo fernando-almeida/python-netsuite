@@ -46,7 +46,9 @@ def create_cashsale(data):
         ),
         'ccNumber': data.credit_card_number,
         'ccName': data.credit_card_owner,
-        'ccSecurityCode': data.cvc2
+        'ccSecurityCode': data.cvc2,
+        'shippingCost': data.shipping_cost
+
     }
     cash_sale = CashSale(**cash_sale_data)
     from lxml import etree
