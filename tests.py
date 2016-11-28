@@ -24,7 +24,7 @@ class NetsuiteTestCase(unittest.TestCase):
 
     def test_cashsale(self):
         cash_sale = create_cashsale(data)
-        self.assertEqual(cash_sale.ccName, 'J. Bloggs')
+        self.assertTrue(cash_sale.status.isSuccess)
 
 
 if __name__ == "__main__":
