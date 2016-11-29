@@ -5,8 +5,10 @@ from netsuite.api.customer import (
     get_or_create_customer,
     get_customer
 )
-from netsuite.api.cashsale import create_cashsale
-
+from netsuite.api.sale import (
+    create_cashsale,
+    create_salesorder
+)
 
 from netsuite.test_data import (
     data,
@@ -23,9 +25,12 @@ class NetsuiteTestCase(unittest.TestCase):
         self.assertTrue(customer.email.endswith('gmail.com'))
 
     def test_cashsale(self):
-        cash_sale = create_cashsale(data)
-        self.assertTrue(cash_sale.status.isSuccess)
+        sale = create_cashsale(data)
+        self.assertTrue(sale.status.isSuccess)
 
+    def test_salesorder(self):
+        sale = create_salesorder(data)
+        self.assertTrue(sale.status.isSuccess)
 
 if __name__ == "__main__":
      unittest.main()

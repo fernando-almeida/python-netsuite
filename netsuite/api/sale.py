@@ -4,6 +4,9 @@ from netsuite.service import (
     CashSale,
     CashSaleItem,
     CashSaleItemList,
+    SalesOrder,
+    SalesOrderItem,
+    SalesOrderItemList,
     RecordRef
 )
 from netsuite.api.customer import get_or_create_customer
@@ -19,21 +22,21 @@ def get_item_reference(item):
     )
 
 
-def create_cashsale(data):
+def create_cashsale_salesorder(data, sale_models):
     addressee = '%s %s' % (data.first_name, data.last_name)
     shipping_address = prepare_address(addressee, data.shipping_address)
     billing_address = prepare_address(addressee, data.billing_address)
 
     raw_item = [
-        CashSaleItem(
+        sale_models['item'](
             item=get_item_reference(item),
             quantity=item.quantity
         ) for item in data.line_items
     ]
-    item_list = CashSaleItemList(item=raw_item)
+    item_list = sale_models['item_list'](item=raw_item)
     customer = get_or_create_customer(prepare_customer_data(data))
-    print('****************customer**********', customer)
-    cash_sale_data = {
+
+    sale_data = {
         'itemList': item_list,
         'entity': RecordRef(internalId=customer.internalId),
         'email': data.email,
@@ -50,12 +53,12 @@ def create_cashsale(data):
         'shippingCost': data.shipping_cost
 
     }
-    cash_sale = CashSale(**cash_sale_data)
-    response = client.service.add(cash_sale, _soapheaders={
+    sale = sale_models['sale'](**sale_data)
+    response = client.service.add(sale, _soapheaders={
         'passport': passport,
         'applicationInfo': app_info
     })
-    print(etree.tostring(client.service._binding.create_message('add', cash_sale, _soapheaders={
+    print(etree.tostring(client.service._binding.create_message('add', sale, _soapheaders={
         'passport': passport,
         'applicationInfo': app_info
     })))
@@ -63,3 +66,21 @@ def create_cashsale(data):
     print(r)
     if r.status.isSuccess:
         return r
+
+
+def create_cashsale(data):
+    sale_models = {
+        'sale': CashSale,
+        'item': CashSaleItem,
+        'item_list': CashSaleItemList
+    }
+    return create_cashsale_salesorder(data, sale_models)
+
+
+def create_salesorder(data):
+    sale_models = {
+        'sale': SalesOrder,
+        'item': SalesOrderItem,
+        'item_list': SalesOrderItemList
+    }
+    return create_cashsale_salesorder(data, sale_models)
