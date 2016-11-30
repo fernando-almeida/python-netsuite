@@ -10,7 +10,10 @@ from netsuite.service import (
     RecordRef
 )
 from netsuite.api.customer import get_or_create_customer
-from netsuite.test_data import prepare_address, prepare_customer_data
+from netsuite.test_data import (
+    prepare_address,
+    prepare_customer_data,
+)
 from datetime import datetime
 from lxml import etree
 
@@ -51,17 +54,19 @@ def create_cashsale_salesorder(data, sale_models):
         'ccName': data.credit_card_owner,
         'ccSecurityCode': data.cvc2,
         'shippingCost': data.shipping_cost
-
     }
+    # if sale_models['sale'] == SalesOrder:
+    #    sale_data['shipAddressList'] = Address(**shipping_address)
+
     sale = sale_models['sale'](**sale_data)
     response = client.service.add(sale, _soapheaders={
         'passport': passport,
         'applicationInfo': app_info
     })
-    print(etree.tostring(client.service._binding.create_message('add', sale, _soapheaders={
-        'passport': passport,
-        'applicationInfo': app_info
-    })))
+    # print(etree.tostring(client.service._binding.create_message('add', sale, _soapheaders={
+    #    'passport': passport,
+    #    'applicationInfo': app_info
+    # })))
     r = response.body.writeResponse
     print(r)
     if r.status.isSuccess:

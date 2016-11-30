@@ -6,7 +6,6 @@ test_data = {
 	],
 	'first_name': 'Joe',
 	'last_name': 'Bloggs',
-	'phone_country': '1',
 	'phone_number': '777777777',
 	'email': 'fmalina@gmail.com',
 	'password': 'ovcaaaa',
@@ -16,7 +15,7 @@ test_data = {
 	    'address_line_2': 'Spring Hill',
 	    'city': 'Springfield',
 	    'region': 'OR',
-	    'zip_code': '121212',
+	    'zip_code': '12121',
 	    'country': 'United States'
     },
 	'credit_card_number': '4444333322221111',
@@ -35,7 +34,7 @@ def prepare_customer_data(data):
     return {
         'firstName': data.first_name,
         'lastName': data.last_name,
-        'phone': '%s%s' % (data.phone_country, data.phone_number),
+        'phone': data.phone_number,
         'email': data.email
     }
 
@@ -48,5 +47,5 @@ def prepare_address(addressee, address):
         'state': address.region,
         'city': address.city,
         'zip': address.zip_code.upper(),
-        # 'country': '__unitedStates'
+        # 'country': '_unitedStates'
     }
