@@ -7,7 +7,8 @@ from netsuite.service import (
     SalesOrder,
     SalesOrderItem,
     SalesOrderItemList,
-    RecordRef
+    RecordRef,
+    ListOrRecordRef
 )
 from netsuite.api.customer import get_or_create_customer
 from netsuite.test_data import (
@@ -55,8 +56,8 @@ def create_cashsale_salesorder(data, sale_models):
         'ccSecurityCode': data.cvc2,
         'shippingCost': data.shipping_cost
     }
-    # if sale_models['sale'] == SalesOrder:
-    #    sale_data['shipAddressList'] = Address(**shipping_address)
+    if sale_models['sale'] == SalesOrder:
+        sale_data['shipAddressList'] = ListOrRecordRef(internalId=2)
 
     sale = sale_models['sale'](**sale_data)
     response = client.service.add(sale, _soapheaders={

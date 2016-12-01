@@ -13,6 +13,7 @@ model = client.get_type
 
 Passport = model('ns1:Passport')
 RecordRef = model('ns1:RecordRef')
+ListOrRecordRef = model('ns1:ListOrRecordRef')
 ApplicationInfo = model('ns5:ApplicationInfo')
 CustomerSearchBasic = model('ns6:CustomerSearchBasic')
 ItemSearchBasic = model('ns6:ItemSearchBasic')
