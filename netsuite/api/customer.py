@@ -9,6 +9,7 @@ from netsuite.service import (
     CustomerSearchBasic,
     SearchStringField
 )
+import uuid
 
 
 def get_customer(internal_id):
@@ -17,15 +18,16 @@ def get_customer(internal_id):
 
 def get_or_create_customer(customer_data):
     """
-    Add a customer, lookup customer if adding fails.
+    Lookup customer, add a customer if lookup fails.
     """
-    customer = Customer(**customer_data)
-    response = client.service.add(customer)
-    r = response.body.writeResponse
-    if r.status.isSuccess:
-        internal_id = r.baseRef.internalId
-    elif r.status.statusDetail[0].code == 'UNIQUE_CUST_ID_REQD':
-        internal_id = lookup_customer_id_by_name_and_email(customer_data)
+    internal_id = lookup_customer_id_by_name_and_email(customer_data)
+    if not internal_id:
+        customer_data['entityId'] = str(uuid.uuid4())
+        customer = Customer(**customer_data)
+        response = client.service.add(customer)
+        r = response.body.writeResponse
+        if r.status.isSuccess:
+            internal_id = r.baseRef.internalId
     return get_customer(internal_id)
 
 
