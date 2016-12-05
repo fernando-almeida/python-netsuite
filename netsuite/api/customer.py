@@ -39,6 +39,8 @@ def lookup_customer_id_by_name_and_email(customer_data):
 
     r = response.body.searchResult
     if r.status.isSuccess:
+        if r.recordList is None:
+            return
         records = r.recordList.record
         if len(records) > 0:
             return records[0].internalId
