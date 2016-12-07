@@ -15,6 +15,8 @@ from netsuite.test_data import (
     prepare_address,
     prepare_customer_data,
 )
+from netsuite.utils import get_record_by_type
+
 from datetime import datetime
 from lxml import etree
 
@@ -69,9 +71,15 @@ def create_cashsale_salesorder(data, sale_models):
     #    'applicationInfo': app_info
     # })))
     r = response.body.writeResponse
-    print(r)
     if r.status.isSuccess:
-        return r
+        record_type = None
+        if sale_models['sale'] == SalesOrder:
+            record_type = 'salesOrder'
+        else:
+            record_type = 'cashSale'
+        result =  get_record_by_type(record_type, r.baseRef.internalId)
+        return True, result
+    return False, r
 
 
 def create_cashsale(data):

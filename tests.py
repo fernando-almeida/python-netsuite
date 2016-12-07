@@ -17,7 +17,6 @@ from netsuite.test_data import (
 
 
 class NetsuiteTestCase(unittest.TestCase):
-
     def test_customer(self):
         customer_data = prepare_customer_data(data)
         customer = get_or_create_customer(customer_data)
@@ -25,12 +24,12 @@ class NetsuiteTestCase(unittest.TestCase):
         self.assertTrue(customer.email.endswith('gmail.com'))
 
     def test_cashsale(self):
-        sale = create_cashsale(data)
-        self.assertTrue(sale.status.isSuccess)
+        created, sale = create_cashsale(data)
+        self.assertTrue(created)
 
     def test_salesorder(self):
-        sale = create_salesorder(data)
-        self.assertTrue(sale.status.isSuccess)
+        created, result = create_salesorder(data)
+        self.assertTrue(created)
 
 if __name__ == "__main__":
      unittest.main()
