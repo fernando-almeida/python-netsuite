@@ -25,7 +25,12 @@ class obj(object):
 
 def get_record_by_type(type, internal_id):
     record = RecordRef(internalId=internal_id, type=type)
-    response = client.service.get(record)
+    response = client.service.get(record,
+        _soapheaders={
+            'applicationInfo': app_info,
+            'passport': passport,
+        }
+    )
     r = response.body.readResponse
     if r.status.isSuccess:
         return r.record
