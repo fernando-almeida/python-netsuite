@@ -1,6 +1,9 @@
 __pycache__
-ns_config.py
-
+ns_config.*
+output/*
 .idea
 archive/
 
+test.py
+
+*.pyc
