@@ -7,7 +7,7 @@ def get_departments(client, search_preferences = None, search_params = None):
 
 	Args:
 		client: Netsuite API client
-		search_preferences: Preferences for returned search results
+		search_preferences: Preferences for returned search results (optional)
 		search_params: Parameters used to filter the search (optional)
 
 	Returns:

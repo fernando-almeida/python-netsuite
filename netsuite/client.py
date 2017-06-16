@@ -64,19 +64,19 @@ class NetsuiteApiClient(object):
     }
   }
 
-  def __init__(self, ns_config, soap_client_config = None, model_aliases = None, search_preferences = None, preferences = None):
+  def __init__(self, config, search_preferences = None, preferences = None):
     """
     Constructor
     
     Args:
-      ns_config: Dictionary with information on how to conenct to the Netsuite API
-      model_aliases: Dictionary with mapping information from aliases to types
+      config: Dictionary with information on how to connect to the Netsuite API
       search_preferences: Default search preferences to use (optional)
       preferences: Default general preferences to use (optional)
     """
 
     # cache WSDL and XSD for a year
-    self.soap_client_config = soap_client_config or self.DEFAULT_SOAP_CLIENT_CONFIG
+    ns_config = config["api"]
+    self.soap_client_config = config["soapClient"] if "soapClient" in config else self.DEFAULT_SOAP_CLIENT_CONFIG
     cache = None
     if 'cache' in self.soap_client_config:
       cache = SqliteCache(**self.soap_client_config['cache'])
@@ -85,14 +85,15 @@ class NetsuiteApiClient(object):
     self.client = Client(ns_config['wsdlUrl'], transport=transport)
 
     # Register namespace alias
-    if 'namespace_prefixes' in self.soap_client_config:
-      for prefix, namespace in self.soap_client_config['namespace_prefixes'].items():
+    if 'namespacePrefixes' in self.soap_client_config:
+      for prefix, namespace in self.soap_client_config['namespacePrefixes'].items():
         self.client.set_ns_prefix(prefix, namespace)
 
     # Alias for the relevant WSDL service to use
     self.service = self.client.service
 
-    self.model_wrapper = self.ModelWrapper(self.client, model_aliases)
+    models_aliases = self.soap_client_config["modelsAliases"] if "modelsAliases" in self.soap_client_config else None
+    self.model_wrapper = self.ModelWrapper(self.client, models_aliases)
 
     self.app_info = self.models.ApplicationInfo(applicationId=ns_config['appId'])
     self.passport = self._make_passport(ns_config)
