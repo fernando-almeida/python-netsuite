@@ -361,7 +361,8 @@ class NetsuiteApiClient(object):
       # Append search results records
       results += newRecords;
 
-      if searchResult.pageIndex + 1 >= searchResult.totalPages:
+      nextPage += 1
+      if nextPage >= searchResult.totalPages:
         break
     
     return results

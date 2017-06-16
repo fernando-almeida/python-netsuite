@@ -1,7 +1,7 @@
 from netsuite.api.utils import search_all
 import netsuite.api.types
 
-def get_subsidiarys(client, search_preferences = None, search_params = None):
+def get_subsidiaries(client, search_preferences = None, search_params = None):
 	"""
 	Perform a basic search on existing subsidiaries
 
@@ -11,7 +11,7 @@ def get_subsidiarys(client, search_preferences = None, search_params = None):
 		search_params: Parameters used to filter the search (optional)
 
 	Returns:
-		List of subsidiarys matching the criteria
+		List of subsidiaries matching the criteria
 	"""
 
 	return search_all(client, 'SubsidiarySearchBasic', search_preferences, search_params)

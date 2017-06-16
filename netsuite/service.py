@@ -1,7 +1,3 @@
-from zeep import Client
-from zeep.cache import SqliteCache
-from zeep.transports import Transport
-
 NETSUITE_NAMESPACE_PREFIXES = {
 	"Accounting": "urn:accounting_2016_2.lists.webservices.netsuite.com",
 	"AccountingTypes": "urn:types.accounting_2016_2.lists.webservices.netsuite.com",
