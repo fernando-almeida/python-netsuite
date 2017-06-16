@@ -2,6 +2,7 @@ from zeep import Client
 from zeep.cache import SqliteCache
 from zeep.transports import Transport
 
+import zeep.helpers
 
 class NetsuiteApiClient(object):
   """ Abstract requests made to the Netsuite API"""
@@ -43,9 +44,9 @@ class NetsuiteApiClient(object):
 
   # Default preferences to be used when searching
   DEFAULT_SEARCH_PREFERENCES_PARAMS = {
-    "bodyFieldsOnly": False,
+    "bodyFieldsOnly": True,
     "returnSearchColumns": True,
-    "pageSize": 500 # 1000
+    "pageSize": 750 # 1000
   }
 
   # Default preferences to be used
@@ -64,12 +65,13 @@ class NetsuiteApiClient(object):
     }
   }
 
-  def __init__(self, config, search_preferences = None, preferences = None):
+  def __init__(self, config, serialize_object_class=dict, search_preferences = None, preferences = None):
     """
     Constructor
     
     Args:
       config: Dictionary with information on how to connect to the Netsuite API
+      serialize_object_class: Class to use for serializing returned objects (optional)
       search_preferences: Default search preferences to use (optional)
       preferences: Default general preferences to use (optional)
     """
@@ -97,9 +99,11 @@ class NetsuiteApiClient(object):
 
     self.app_info = self.models.ApplicationInfo(applicationId=ns_config['appId'])
     self.passport = self._make_passport(ns_config)
-    self.search_preferences = search_preferences or self.models.SearchPreferences(**self.DEFAULT_SEARCH_PREFERENCES_PARAMS)
-    self.preferences = preferences or self.models.Preferences(**self.DEFAULT_PREFERENCES_PARAMS)
+    self.search_preferences = self.models.SearchPreferences(**search_preferences) if search_preferences else self.models.SearchPreferences(**self.DEFAULT_SEARCH_PREFERENCES_PARAMS)
+    self.preferences = self.models.Preferences(**preferences) if preferences else self.models.Preferences(**self.DEFAULT_PREFERENCES_PARAMS)
 
+    # Specify the class to be used when serializing objects
+    self.serialize_object_class = serialize_object_class
     self.logged_in = False
 
 
@@ -252,9 +256,13 @@ class NetsuiteApiClient(object):
         }
     )
     r = response.body.readResponse
-    if r.status.isSuccess:
-        return r.record
+    if not r.status.isSuccess:
+      raise Exception("Could not retrieve Record of type={0} with internalId={1}".format(type, internal_id))
+    
+    if self.serialize_object_class:
+      return zeep.helpers.serialize_object(r.record, self.serialize_object_class)
 
+    return r.record
 
   def search(self, searchtype, search_preferences = None):
     """
@@ -365,6 +373,9 @@ class NetsuiteApiClient(object):
       if nextPage >= searchResult.totalPages:
         break
     
+    if self.serialize_object_class:
+      return [zeep.helpers.serialize_object(zeep_object, self.serialize_object_class) for zeep_object in results]
+
     return results
 
   def get_values_for_field(self, record_type, field, preferences = None):
