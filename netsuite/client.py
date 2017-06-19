@@ -320,7 +320,7 @@ class NetsuiteApiClient(object):
 
     search_preferences = search_preferences or self.search_preferences
 
-    results = []
+    records = []
 
     nextPage = 1
     print('Fetching page', nextPage)
@@ -339,10 +339,10 @@ class NetsuiteApiClient(object):
       raise "Search result was not successful"
 
     if searchResult.recordList is None:
-      return []
+      return records
 
     records = searchResult.recordList.record;
-    print('Found {0} of {1} results in page {2}/{3}'.format(len(results), searchResult.totalRecords, nextPage, searchResult.totalPages))
+    print('Found {0} of {1} records in page {2}/{3}'.format(len(records), searchResult.totalRecords, nextPage, searchResult.totalPages))
 
     nextPage = searchResult.pageIndex + 1
     while nextPage <= searchResult.totalPages:
@@ -366,8 +366,8 @@ class NetsuiteApiClient(object):
         raise "Search result was not successful for page {0}".format(nextPage)
 
       newRecords = searchResult.recordList.record
-      print('Found {0} of {1} results in page {2}/{3}'.format(len(results), searchResult.totalRecords, nextPage, searchResult.totalPages))
-      # Append search results records
+      print('Found {0} of {1} records in page {2}/{3}'.format(len(records), searchResult.totalRecords, nextPage, searchResult.totalPages))
+      # Append search result records
       records += newRecords;
 
       nextPage += 1
