@@ -315,7 +315,7 @@ class NetsuiteApiClient(object):
       Exception if not successful
 
     Returns:
-      List of search results found
+      List of search result records found
     """
 
     search_preferences = search_preferences or self.search_preferences
@@ -341,17 +341,18 @@ class NetsuiteApiClient(object):
     if searchResult.recordList is None:
       return []
 
-    results = searchResult.recordList.record;
-    print('Found {0} results in page {1}'.format(len(results), nextPage))
+    records = searchResult.recordList.record;
+    print('Found {0} of {1} results in page {2}/{3}'.format(len(results), searchResult.totalRecords, nextPage, searchResult.totalPages))
 
     nextPage = searchResult.pageIndex + 1
-    while nextPage < searchResult.totalPages:
+    while nextPage <= searchResult.totalPages:
       
       print('Fetching page', nextPage)
       # nextSearchType = SearchMoreWithIdRequest(searchId = searchResult.searchId, pageIndex= nextPage)
 
       response = self.service.searchMoreWithId(
-        searchId = searchResult.searchId, pageIndex= nextPage,
+        searchId = searchResult.searchId,
+        pageIndex= nextPage,
         _soapheaders={
             'searchPreferences': search_preferences,
             'applicationInfo': self.app_info,
@@ -365,18 +366,18 @@ class NetsuiteApiClient(object):
         raise "Search result was not successful for page {0}".format(nextPage)
 
       newRecords = searchResult.recordList.record
-      print('Found {0} results in page {1}'.format(len(newRecords), nextPage))
+      print('Found {0} of {1} results in page {2}/{3}'.format(len(results), searchResult.totalRecords, nextPage, searchResult.totalPages))
       # Append search results records
-      results += newRecords;
+      records += newRecords;
 
       nextPage += 1
-      if nextPage >= searchResult.totalPages:
-        break
     
-    if self.serialize_object_class:
-      return [zeep.helpers.serialize_object(zeep_object, self.serialize_object_class) for zeep_object in results]
+    print('Retrieved a total of {0} records from the search'.format(len(records)))
 
-    return results
+    if self.serialize_object_class:
+      return [zeep.helpers.serialize_object(zeep_object, self.serialize_object_class) for zeep_object in records]
+
+    return records
 
   def get_values_for_field(self, record_type, field, preferences = None):
     """
@@ -396,6 +397,7 @@ class NetsuiteApiClient(object):
     )
 
     print(response)
+    raise NotImplementedError("Not implemented")
 
 
 
