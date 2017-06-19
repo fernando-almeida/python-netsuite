@@ -436,9 +436,8 @@ class NetsuiteApiClient(object):
       }
     )
 
-    print('Response', response)
-    return response.body.writeResponse.status.isSuccess;
-
+    if not response.body.writeResponse.status.isSuccess:
+      raise Exception(response.body.writeResponse.status)
     
     # Update a list of recorsd
   def update_records(self, records, preferences = None):
