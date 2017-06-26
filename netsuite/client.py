@@ -4,6 +4,8 @@ from zeep.transports import Transport
 
 import zeep.helpers
 
+import logging
+
 class NetsuiteApiClient(object):
   """ Abstract requests made to the Netsuite API"""
 
@@ -65,7 +67,7 @@ class NetsuiteApiClient(object):
     }
   }
 
-  def __init__(self, config, serialize_object_class=dict, search_preferences = None, preferences = None):
+  def __init__(self, config, serialize_object_class=dict, search_preferences = None, preferences = None, logger = None):
     """
     Constructor
     
@@ -75,6 +77,8 @@ class NetsuiteApiClient(object):
       search_preferences: Default search preferences to use (optional)
       preferences: Default general preferences to use (optional)
     """
+
+    self.logger = logger or logging.getLogger(__name__)
 
     # cache WSDL and XSD for a year
     ns_config = config["api"]
@@ -323,7 +327,9 @@ class NetsuiteApiClient(object):
     records = []
 
     nextPage = 1
-    print('Fetching page', nextPage)
+    
+    self.logger.info('Fetching page {0}'.format(nextPage))
+
     response = self.service.search(
         searchRecord=searchtype,
         _soapheaders={
@@ -342,12 +348,12 @@ class NetsuiteApiClient(object):
       return records
 
     records = searchResult.recordList.record;
-    print('Found {0} of {1} records in page {2}/{3}'.format(len(records), searchResult.totalRecords, nextPage, searchResult.totalPages))
+    self.logger.info('Found {0} of {1} records in page {2}/{3}'.format(len(records), searchResult.totalRecords, nextPage, searchResult.totalPages))
 
     nextPage = searchResult.pageIndex + 1
     while nextPage <= searchResult.totalPages:
       
-      print('Fetching page', nextPage)
+      self.logger.info('Fetching page {0}'.format(nextPage))
       # nextSearchType = SearchMoreWithIdRequest(searchId = searchResult.searchId, pageIndex= nextPage)
 
       response = self.service.searchMoreWithId(
@@ -366,13 +372,14 @@ class NetsuiteApiClient(object):
         raise "Search result was not successful for page {0}".format(nextPage)
 
       newRecords = searchResult.recordList.record
-      print('Found {0} of {1} records in page {2}/{3}'.format(len(records), searchResult.totalRecords, nextPage, searchResult.totalPages))
+      self.logger.info('Found {0} of {1} records in page {2}/{3}'.format(len(records), searchResult.totalRecords, nextPage, searchResult.totalPages))
+      
       # Append search result records
       records += newRecords;
 
       nextPage += 1
     
-    print('Retrieved a total of {0} records from the search'.format(len(records)))
+    self.logger.info('Retrieved a total of {0} records from the search'.format(len(records)))
 
     if self.serialize_object_class:
       return [zeep.helpers.serialize_object(zeep_object, self.serialize_object_class) for zeep_object in records]
@@ -462,48 +469,91 @@ class NetsuiteApiClient(object):
       }
     )
 
-  def add(record):
+  def add(self, record, preferences = None):
     """
     Add a new entity records
 
     Args:
       record: New entity record to add
+      preferences: General preferences
     """
-    raise NotImplementedError
+    
+    preferences = preferences or self.preferences
 
-  def addList(records):
+    response = self.service.add(
+      record=record,
+     _soapheaders={
+        'passport': self.passport,
+        'applicationInfo': self.app_info,
+        'preferences': preferences
+    })
+
+    if not response.body.writeResponse.status.isSuccess:
+          raise Exception(response.body.writeResponse.status)
+
+  def addList(self, records, preferences = None):
     """
     Add a list of new entities records
 
     Args:
       records: List of new record entities to add
+      preferences: General preferences
     """
-    raise NotImplementedError
+    preferences = preferences or self.preferences
 
-  def addList(records):
-    """
-    Add a list of new entities records
+    response = self.service.addList(
+      record=records,
+     _soapheaders={
+        'passport': self.passport,
+        'applicationInfo': self.app_info,
+        'preferences': preferences
+    })
 
-    Args:
-      records: List of new record entities to add
-    """
-    raise NotImplementedError
+    if not response.body.writeResponse.status.isSuccess:
+          raise Exception(response.body.writeResponse.status)
 
-  def asyncAddList(records):
+  def asyncAddList(self, records, preferences):
     """
     Add a list of new entities records asynchronously
 
     Args:
       records: List of new record entities to add
+      preferences: General preferences
     """
-    raise NotImplementedError
+    preferences = preferences or self.preferences
 
-  def asyncDeleteList(records, reason):
+    response = self.service.asyncAddList(
+      record=records,
+     _soapheaders={
+        'passport': self.passport,
+        'applicationInfo': self.app_info,
+        'preferences': preferences
+    })
+
+    if not response.body.writeResponse.status.isSuccess:
+          raise Exception(response.body.writeResponse.status)
+
+  def asyncDeleteList(self, names, reason):
     """
     Delete a list of entitiy records asynchronously
 
     Args:
       records: List of records to delete asynchronously
       reason: Justification for deleting the records
+      preferences: General preferences
     """
-    raise NotImplementedError
+    preferences = preferences or self.preferences
+
+    response = self.service.asyncDeleteList(
+      baseRef=names,
+      deletionReason=reason,
+     _soapheaders={
+        'passport': self.passport,
+        'applicationInfo': self.app_info,
+        'preferences': preferences
+    })
+
+    if not response.body.writeResponse.status.isSuccess:
+          raise Exception(response.body.writeResponse.status)
+
+    return response.body
