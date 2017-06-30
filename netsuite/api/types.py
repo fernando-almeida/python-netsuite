@@ -177,3 +177,62 @@ class RecordType(object):
 	WorkOrderIssue = "workOrderIssue"
 	WorkOrderCompletion = "workOrderCompletion"
 	WorkOrderClose = "workOrderClose"
+
+
+class SearchStringFieldOperator(object):
+	CONTAINS = "contains"
+	NOT_CONTAINS = "doesNotContain"
+	NOT_STARTS_WITH = "doesNotStartWith"
+	EMPTY = "empty"
+	HAS_KEYWORDS = "hasKeywords"
+	IS = "is"
+	IS_NOT = "isNot"
+	NOT_EMPTY = "notEmpty"
+	STARTS_WITH = "startsWith"
+
+class SearchNumberFieldOperator(object):
+	BETWEEN = "between"
+	EMPTY = "empty"
+	EQUAL_TO = "equalTo"
+	GREATER_THAN = "greaterThan"
+	GREATER_OR_EQUAL_THAN = "greaterThanOrEqualTo"
+	LESS_THAN = "lessThan"
+	LESS_OR_EQUAL_THAN = "lessThanOrEqualTo"
+	NOT_BETWEEN = "notBetween"
+	NOT_EMPTY = "notEmpty"
+	NOT_EQUAL_TO = "notEqualTo"
+	NOT_GREATER_THAN = "notGreaterThan"
+	NOT_GREATER_OR_EQUAL_THAN = "notGreaterThanOrEqualTo"
+	NOT_LESS_THAN = "notLessThan"
+	NOT_LESS_OR_EQUAL_THAN = "notLessThanOrEqualTo"
+
+class SearchLongFieldOperator(SearchNumberFieldOperator): pass
+class SearchTextNumberFieldOperator(SearchNumberFieldOperator): pass
+class SearchDoubleFieldOperator(SearchNumberFieldOperator): pass
+
+class SearchDateFieldOperator(object):
+	pass
+
+class SearchEnumMultiSelectFieldOperator(object):
+	pass
+
+class SearchMultiSelectFieldOperator(object):
+	pass
+
+class SearchDate(object):
+	pass
+
+class DurationUnit(object):
+	HOUR = "hour"
+
+class CalendarEventAttendeeResponse(object):
+	ACCEPTED = "_accepted"
+	DECLINED = "_declined"
+	NO_RESPONSE = "_noResponse"
+	TENTATIVE = "_tentative"
+
+class GetSelectValueFilterOperator(object):
+	pass
+
+class SignatureAlgorithm(object):
+	pass

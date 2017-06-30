@@ -297,12 +297,44 @@ class NetsuiteApiClient(object):
         }
     )
 
-
     searchResult = response.body.searchResult
     
     if not searchResult.status.isSuccess:
       raise "Search result was not successful"
 
+    
+    return searchResult
+
+
+  def asyncSearch(self, searchtype, search_preferences = None):
+    """
+      Perform an asynchronous search for records on the 1st page using the provided search type instance
+
+    Args:
+      search_type: Instance of a search type describing the filters to be applied
+      search_preferences: Search preferences to use for this search (optional)
+
+    Throws:
+      Exception if not successful
+
+    Returns:
+      Instance of a SearchResult
+    """
+    search_preferences = search_preferences or self.search_preferences
+
+    response = self.service.asyncSearch(
+        searchRecord=searchtype,
+        _soapheaders={
+            'searchPreferences': search_preferences,
+            'applicationInfo': self.app_info,
+            'passport': self.passport,
+        }
+    )
+
+    if not response.body.searchResult.isSuccess:
+      raise "Search result was not successful"
+
+    searchResult = response.body.searchResult
     
     return searchResult
 
@@ -509,10 +541,10 @@ class NetsuiteApiClient(object):
         'preferences': preferences
     })
 
-    if not response.body.writeResponse.status.isSuccess:
+    if not response.body.writeResponseList.status.isSuccess:
           raise Exception(response.body.writeResponse.status)
 
-  def asyncAddList(self, records, preferences):
+  def asyncAddList(self, records, preferences = None):
     """
     Add a list of new entities records asynchronously
 
@@ -530,10 +562,10 @@ class NetsuiteApiClient(object):
         'preferences': preferences
     })
 
-    if not response.body.writeResponse.status.isSuccess:
+    if not response.body.asyncStatusResult.status.isSuccess:
           raise Exception(response.body.writeResponse.status)
 
-  def asyncDeleteList(self, names, reason):
+  def asyncDeleteList(self, names, reason, preferences = None):
     """
     Delete a list of entitiy records asynchronously
 
@@ -553,7 +585,101 @@ class NetsuiteApiClient(object):
         'preferences': preferences
     })
 
-    if not response.body.writeResponse.status.isSuccess:
+    if not response.body.asyncStatusResult.status.isSuccess:
+          raise Exception(response.body.writeResponse.status)
+
+    return response.body
+
+  def asyncInitializeList(self, records, preferences = None):
+    """
+    Initialiaze a list of with a list of records
+
+    Args:
+      records: List of records to initialize the list with
+      preferences: General preferences
+    """
+    preferences = preferences or self.preferences
+
+    response = self.service.asyncInitializeList(
+      record=records,
+     _soapheaders={
+        'passport': self.passport,
+        'applicationInfo': self.app_info,
+        'preferences': preferences
+    })
+
+    if not response.body.asyncStatusResult.status.isSuccess:
+          raise Exception(response.body.writeResponse.status)
+
+    return response.body
+
+  def asyncUpdateList(self, records, preferences = None):
+    """
+    Update a list of with a set of records
+
+    Args:
+      records: Set of records to update the list with
+      preferences: General preferences
+    """
+    preferences = preferences or self.preferences
+
+    response = self.service.asyncUpdateList(
+      record=records,
+     _soapheaders={
+        'passport': self.passport,
+        'applicationInfo': self.app_info,
+        'preferences': preferences
+    })
+
+    if not response.body.asyncStatusResult.status.isSuccess:
+          raise Exception(response.body.writeResponse.status)
+
+    return response.body
+
+  def asyncUpsertList(self, records, preferences = None):
+    """
+    Upsert a list of with a list of records
+
+    Args:
+      records: List of records to update the list with
+      preferences: General preferences
+    """
+    preferences = preferences or self.preferences
+
+    response = self.service.asyncUpsertList(
+      record=records,
+     _soapheaders={
+        'passport': self.passport,
+        'applicationInfo': self.app_info,
+        'preferences': preferences
+    })
+
+    if not response.body.asyncStatusResult.status.isSuccess:
+          raise Exception(response.body.writeResponse.status)
+
+    return response.body
+
+
+
+  def getList(self, recordRefs, preferences = None):
+    """
+    Upsert a list of with a list of records
+
+    Args:
+      recordRefs: List of record references to get lists from
+      preferences: General preferences
+    """
+    preferences = preferences or self.preferences
+
+    response = self.service.getList(
+      baseRef=recordRefs,
+     _soapheaders={
+        'passport': self.passport,
+        'applicationInfo': self.app_info,
+        'preferences': preferences
+    })
+
+    if not response.body.readResponseList.status.isSuccess:
           raise Exception(response.body.writeResponse.status)
 
     return response.body
