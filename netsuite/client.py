@@ -400,7 +400,7 @@ class NetsuiteApiClient(object):
       searchResult = response.body.searchResult
     
       if not searchResult.status.isSuccess:
-        raise "Search result was not successful for page {0}".format(nextPage)
+        raise Exception("Search result was not successful for page {0} {1}".format(nextPage, searchResult.status))
 
       newRecords = searchResult.recordList.record
       self.logger.debug('Found {0} of {1} record in page {2}/{3}'.format(len(record), searchResult.totalRecords, nextPage, searchResult.totalPages))
