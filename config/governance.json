@@ -1,0 +1,139 @@
+{
+	"config": {
+		"timezone": "US/Pacific"
+	},
+	"schedules": {
+		"peak_hours": {
+			"start_time": "6:00",
+			"end_time": "18:00"
+		},
+		"off_peak_hours": {
+			"start_time": "18:00",
+			"end_time": "6:00"
+		}
+	},
+	"record_limits": {
+		"synchronous": {
+			"peak_hours": {
+				"operations": {
+					"add": {
+						"record_count": {
+							"value": 100,
+							"type": "per_request"
+						}
+					},
+					"update": {
+						"record_count": {
+							"value": 50,
+							"type": "per_request"
+						}
+					},
+					"delete": {
+						"record_count": {
+							"value": 100,
+							"type": "per_request"
+						}
+					},
+					"search_page_size": {
+						"record_count": {
+							"value": 500,
+							"type": "per_request"
+						}
+					}
+				}
+			},
+			"off_peak_hours": {
+				"operations": {
+					"add": {
+						"record_count": {
+							"value": 200,
+							"type": "per_request"
+						}
+					},
+					"update": {
+						"record_count": {
+							"value": 100,
+							"type": "per_request"
+						}
+					},
+					"delete": {
+						"record_count": {
+							"value": 200,
+							"type": "per_request"
+						}
+					},
+					"search_page_size": {
+						"record_count": {
+							"value": 1000,
+							"type": "per_request"
+						}
+					}
+				}
+			}
+		},
+		"asynchronous": {
+			"peak_hours": {
+				"operations": {
+					"add": {
+						"record_count": {
+							"value": 400,
+							"type": "per_request"
+						}
+					},
+					"update": {
+						"record_count": {
+							"value": 200,
+							"type": "per_request"
+						}
+					},
+					"delete": {
+						"record_count": {
+							"value": 400,
+							"type": "per_request"
+						}
+					},
+					"search_page_size": {
+						"record_count": {
+							"value": 2000,
+							"type": "per_request"
+						}
+					}
+				}
+			},
+			"off_peak_hours": {
+				"operations": {
+					"add": {
+						"record_count": {
+							"value": 400,
+							"type": "per_request"
+						}
+					},
+					"update": {
+						"record_count": {
+							"value": 200,
+							"type": "per_request"
+						}
+					},
+					"delete": {
+						"record_count": {
+							"value": 400,
+							"type": "per_request"
+						}
+					},
+					"search_page_size": {
+						"record_count": {
+							"value": 2000,
+							"type": "per_request"
+						}
+					}
+				}
+			}
+		}
+	},
+	"request_limits": {
+		"max_request_size": {
+			"value": "10",
+			"units": "MB"
+		}
+	}
+}

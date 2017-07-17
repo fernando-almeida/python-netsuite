@@ -4,7 +4,11 @@ from zeep.transports import Transport
 
 import zeep.helpers
 
+from netsuite.api.types import AsyncStatusType
+
 import logging
+
+logger = logging.getLogger(__name__)
 
 class NetsuiteApiClient(object):
   """ Abstract requests made to the Netsuite API"""
@@ -270,7 +274,7 @@ class NetsuiteApiClient(object):
 
   def search(self, searchtype, search_preferences = None):
     """
-    Perform a custom search for records on the 1st page using the provided search type instance
+    Perform a custom search for record on the 1st page using the provided search type instance
 
     Args:
       search_type: Instance of a search type describing the filters to be applied
@@ -282,9 +286,6 @@ class NetsuiteApiClient(object):
     Returns:
       Instance of a SearchResult
     """
-    #print(self.search_preferences)
-    #print(self.app_info)
-    #print(self.passport)
 
     search_preferences = search_preferences or self.search_preferences
 
@@ -300,7 +301,7 @@ class NetsuiteApiClient(object):
     searchResult = response.body.searchResult
     
     if not searchResult.status.isSuccess:
-      raise "Search result was not successful"
+      raise Exception("Search result was not successful")
 
     
     return searchResult
@@ -308,7 +309,7 @@ class NetsuiteApiClient(object):
 
   def asyncSearch(self, searchtype, search_preferences = None):
     """
-      Perform an asynchronous search for records on the 1st page using the provided search type instance
+      Perform an asynchronous search for record on the 1st page using the provided search type instance
 
     Args:
       search_type: Instance of a search type describing the filters to be applied
@@ -331,17 +332,15 @@ class NetsuiteApiClient(object):
         }
     )
 
-    if not response.body.searchResult.isSuccess:
-      raise "Search result was not successful"
+    if response.body.asyncStatusResult.status == AsyncStatusType.FAILED:
+      raise Exception(response.body.asyncStatusResult)
 
-    searchResult = response.body.searchResult
-    
-    return searchResult
+    return asyncStatusResult
 
   
   def search_all(self, searchtype, search_preferences = None):
     """
-    Perform a custom search for all records using the provided search type instance
+    Perform a custom search for all record using the provided search type instance
 
     Args:
       search_type: Instance of a search type describing the filters to be applied
@@ -351,16 +350,16 @@ class NetsuiteApiClient(object):
       Exception if not successful
 
     Returns:
-      List of search result records found
+      List of search result record found
     """
 
     search_preferences = search_preferences or self.search_preferences
 
-    records = []
+    record = []
 
     nextPage = 1
     
-    self.logger.info('Fetching page {0}'.format(nextPage))
+    self.logger.debug('Fetching page {0}'.format(nextPage))
 
     response = self.service.search(
         searchRecord=searchtype,
@@ -377,15 +376,15 @@ class NetsuiteApiClient(object):
       raise "Search result was not successful"
 
     if searchResult.recordList is None:
-      return records
+      return record
 
-    records = searchResult.recordList.record;
-    self.logger.info('Found {0} of {1} records in page {2}/{3}'.format(len(records), searchResult.totalRecords, nextPage, searchResult.totalPages))
+    record = searchResult.recordList.record;
+    self.logger.debug('Found {0} of {1} record in page {2}/{3}'.format(len(record), searchResult.totalRecords, nextPage, searchResult.totalPages))
 
     nextPage = searchResult.pageIndex + 1
     while nextPage <= searchResult.totalPages:
       
-      self.logger.info('Fetching page {0}'.format(nextPage))
+      self.logger.debug('Fetching page {0}'.format(nextPage))
       # nextSearchType = SearchMoreWithIdRequest(searchId = searchResult.searchId, pageIndex= nextPage)
 
       response = self.service.searchMoreWithId(
@@ -404,19 +403,19 @@ class NetsuiteApiClient(object):
         raise "Search result was not successful for page {0}".format(nextPage)
 
       newRecords = searchResult.recordList.record
-      self.logger.info('Found {0} of {1} records in page {2}/{3}'.format(len(records), searchResult.totalRecords, nextPage, searchResult.totalPages))
+      self.logger.debug('Found {0} of {1} record in page {2}/{3}'.format(len(record), searchResult.totalRecords, nextPage, searchResult.totalPages))
       
-      # Append search result records
-      records += newRecords;
+      # Append search result record
+      record += newRecords;
 
       nextPage += 1
     
-    self.logger.info('Retrieved a total of {0} records from the search'.format(len(records)))
+    self.logger.info('Retrieved a total of {0} record from the search'.format(len(record)))
 
     if self.serialize_object_class:
-      return [zeep.helpers.serialize_object(zeep_object, self.serialize_object_class) for zeep_object in records]
+      return [zeep.helpers.serialize_object(zeep_object, self.serialize_object_class) for zeep_object in record]
 
-    return records
+    return record
 
   def get_values_for_field(self, record_type, field, preferences = None):
     """
@@ -435,7 +434,6 @@ class NetsuiteApiClient(object):
       }
     )
 
-    print(response)
     raise NotImplementedError("Not implemented")
 
 
@@ -478,13 +476,13 @@ class NetsuiteApiClient(object):
     if not response.body.writeResponse.status.isSuccess:
       raise Exception(response.body.writeResponse.status)
     
-    # Update a list of recorsd
-  def update_records(self, records, preferences = None):
+    # Update a list of records
+  def updateList(self, record, preferences = None):
     """
-    Update a list of records
+    Update a list of record
 
     Args:
-      records: List of records to update
+      record: List of records to update
 
     Returns:
       True if the update was successful of false otherwise
@@ -493,7 +491,7 @@ class NetsuiteApiClient(object):
     preferences = preferences or self.preferences
 
     response = self.service.updateList(
-        record=records,
+        record=record,
         _soapheaders={
             'preferences': preferences,
             'applicationInfo': self.app_info,
@@ -501,9 +499,14 @@ class NetsuiteApiClient(object):
       }
     )
 
+    if not response.body.writeResponseList.status.isSuccess:
+      raise Exception(response.body.writeResponseList.status)
+
+    return response.body.writeResponseList.writeResponse
+
   def add(self, record, preferences = None):
     """
-    Add a new entity records
+    Add a new entity record
 
     Args:
       record: New entity record to add
@@ -523,18 +526,18 @@ class NetsuiteApiClient(object):
     if not response.body.writeResponse.status.isSuccess:
           raise Exception(response.body.writeResponse.status)
 
-  def addList(self, records, preferences = None):
+  def addList(self, record, preferences = None):
     """
-    Add a list of new entities records
+    Add a list of new entities record
 
     Args:
-      records: List of new record entities to add
+      record: List of new record entities to add
       preferences: General preferences
     """
     preferences = preferences or self.preferences
 
     response = self.service.addList(
-      record=records,
+      record=record,
      _soapheaders={
         'passport': self.passport,
         'applicationInfo': self.app_info,
@@ -542,36 +545,40 @@ class NetsuiteApiClient(object):
     })
 
     if not response.body.writeResponseList.status.isSuccess:
-          raise Exception(response.body.writeResponse.status)
+      raise Exception(response.body.writeResponseList.status)
 
-  def asyncAddList(self, records, preferences = None):
+    return response.writeResponseList.writeResponse
+
+  def asyncAddList(self, record, preferences = None):
     """
-    Add a list of new entities records asynchronously
+    Add a list of new entities record asynchronously
 
     Args:
-      records: List of new record entities to add
+      record: List of new record entities to add
       preferences: General preferences
     """
     preferences = preferences or self.preferences
 
     response = self.service.asyncAddList(
-      record=records,
+      record=record,
      _soapheaders={
         'passport': self.passport,
         'applicationInfo': self.app_info,
         'preferences': preferences
     })
 
-    if not response.body.asyncStatusResult.status.isSuccess:
-          raise Exception(response.body.writeResponse.status)
+    if response.body.asyncStatusResult.status == AsyncStatusType.FAILED:
+      raise Exception(response.body.asyncStatusResult)
+
+    return asyncStatusResult
 
   def asyncDeleteList(self, names, reason, preferences = None):
     """
-    Delete a list of entitiy records asynchronously
+    Delete a list of entitiy record asynchronously
 
     Args:
-      records: List of records to delete asynchronously
-      reason: Justification for deleting the records
+      record: List of record to delete asynchronously
+      reason: Justification for deleting the record
       preferences: General preferences
     """
     preferences = preferences or self.preferences
@@ -585,85 +592,176 @@ class NetsuiteApiClient(object):
         'preferences': preferences
     })
 
-    if not response.body.asyncStatusResult.status.isSuccess:
-          raise Exception(response.body.writeResponse.status)
+    if response.body.asyncStatusResult.status == AsyncStatusType.FAILED:
+      raise Exception(response.body.asyncStatusResult)
 
-    return response.body
+    return asyncStatusResult
 
-  def asyncInitializeList(self, records, preferences = None):
+  def asyncInitializeList(self, record, preferences = None):
     """
-    Initialiaze a list of with a list of records
+    Initialiaze a list of with a list of record
 
     Args:
-      records: List of records to initialize the list with
+      record: List of record to initialize the list with
       preferences: General preferences
     """
     preferences = preferences or self.preferences
 
     response = self.service.asyncInitializeList(
-      record=records,
+      record=record,
      _soapheaders={
         'passport': self.passport,
         'applicationInfo': self.app_info,
         'preferences': preferences
     })
 
-    if not response.body.asyncStatusResult.status.isSuccess:
-          raise Exception(response.body.writeResponse.status)
+    if response.body.asyncStatusResult.status == AsyncStatusType.FAILED:
+      raise Exception(response.body.asyncStatusResult)
 
-    return response.body
+    return asyncStatusResult
 
-  def asyncUpdateList(self, records, preferences = None):
+  def asyncUpdateList(self, record, preferences = None):
     """
-    Update a list of with a set of records
+    Update a list of with a set of record
 
     Args:
-      records: Set of records to update the list with
+      record: Set of record to update the list with
       preferences: General preferences
     """
     preferences = preferences or self.preferences
 
     response = self.service.asyncUpdateList(
-      record=records,
+      record=record,
      _soapheaders={
         'passport': self.passport,
         'applicationInfo': self.app_info,
         'preferences': preferences
     })
 
-    if not response.body.asyncStatusResult.status.isSuccess:
-          raise Exception(response.body.writeResponse.status)
+    if response.body.asyncStatusResult.status == AsyncStatusType.FAILED:
+      raise Exception(response.body.asyncStatusResult)
 
-    return response.body
+    return asyncStatusResult
 
-  def asyncUpsertList(self, records, preferences = None):
+  def asyncUpsertList(self, record, preferences = None):
     """
-    Upsert a list of with a list of records
+    Upsert a list of with a list of record
 
     Args:
-      records: List of records to update the list with
+      record: List of record to update the list with
       preferences: General preferences
     """
     preferences = preferences or self.preferences
 
     response = self.service.asyncUpsertList(
-      record=records,
+      record=record,
      _soapheaders={
         'passport': self.passport,
         'applicationInfo': self.app_info,
         'preferences': preferences
     })
 
-    if not response.body.asyncStatusResult.status.isSuccess:
+    if response.body.asyncStatusResult.status == AsyncStatusType.FAILED:
+      raise Exception(response.body.asyncStatusResult)
+
+    return asyncStatusResult
+
+  def checkAsyncStatus(self, jobId, preferences = None):
+    """
+    Check the execution status of an asynchronous job
+
+    Args:
+      jobId: Asynchronous job identifier
+      preferences: General preferences
+    """
+    preferences = preferences or self.preferences
+
+    response = self.service.checkAsyncStatus(
+      jobId=jobId,
+     _soapheaders={
+        'passport': self.passport,
+        'applicationInfo': self.app_info,
+        'preferences': preferences
+    })
+
+    return response.body.asyncStatusResult
+
+
+  def getAsyncResult(self, jobId, pageIndex = 1, preferences = None):
+    """
+    Get the result for an asynchronous job
+
+    Args:
+      jobId: Asynchronous job identifier
+      preferences: General preferences
+    """
+    preferences = preferences or self.preferences
+
+    response = self.service.checkAsyncStatus(
+      jobId=jobId,
+     _soapheaders={
+        'passport': self.passport,
+        'applicationInfo': self.app_info,
+        'preferences': preferences
+    })
+
+    return response.body.asyncResult
+
+
+  def delete(self, baseRef,  deletionReason = None, preferences = None):
+    """
+    Delete a record from Oracle's Netsuite
+
+    Args:
+      baseRef: Reference to a record to delete
+      deletionReason: Reason for deleting the record
+      preferences: General preferences
+    """
+    preferences = preferences or self.preferences
+
+    response = self.service.delete(
+      baseRef=baseRef,
+      deletionReason=deletionReason,
+     _soapheaders={
+        'passport': self.passport,
+        'applicationInfo': self.app_info,
+        'preferences': preferences
+    })
+
+    if not response.body.writeResponse.status.isSuccess:
           raise Exception(response.body.writeResponse.status)
 
     return response.body
 
+  def deleteList(self, baseRef,  deletionReason = None, preferences = None):
+    """
+    Delete a list of references to record from Oracle's Netsuite
+
+    Args:
+      baseRef: List of references to record to be deleted
+      deletionReason: Reason for deleting the record
+      preferences: General preferences
+    """
+    preferences = preferences or self.preferences
+
+    response = self.service.deleteList(
+      baseRef=baseRef,
+      deletionReason=deletionReason,
+     _soapheaders={
+        'passport': self.passport,
+        'applicationInfo': self.app_info,
+        'preferences': preferences
+    })
+
+    if not response.body.writeResponseList.status.isSuccess:
+      raise Exception(response.body.writeResponseList.status)
+
+    return response.writeResponseList.writeResponse
 
 
   def getList(self, recordRefs, preferences = None):
     """
-    Upsert a list of with a list of records
+    Upsert a list of with a list of record
 
     Args:
       recordRefs: List of record references to get lists from
@@ -683,3 +781,139 @@ class NetsuiteApiClient(object):
           raise Exception(response.body.writeResponse.status)
 
     return response.body
+
+
+
+
+class NetsuiteApiBatchClient(object):
+  """
+  Oracle's Netsuite API Batch Client
+  """
+
+  class BatchableOperation(object):
+
+    def __init__(self, batch_client, base_client, operation_name):
+      self.batch_client = batch_client
+      self.base_client = base_client
+      self.operation_name = operation_name
+      self.operation_category = self.batch_client.governance_model.get_operation_category(operation_name)
+      self.operation_constraints = self.batch_client.governance_model.get_operation_constraints(self.operation_name)
+      self.property_name = 'record' if self.operation_category != 'delete' else 'baseRef'
+
+    def __call__(self, *args, **kwargs):
+      """
+      Call base method
+      """
+
+      num_queued_operations = len(self.batch_client.queued_operations[self.operation_category])
+
+      should_execute_batch = "record_count" in self.operation_constraints and \
+                  num_queued_operations == self.operation_constraints["record_count"]["value"]
+
+      if should_execute_batch:
+        self.batch_client._execute(self.operation_category)
+
+      # TODO Currently, not handling disparate preferences
+      preferences = kwargs["preferences"] if "preferences" in kwargs else None
+
+      # Queue the operation for next execution
+      record = []
+
+
+      if self.property_name in kwargs:
+        record = kwargs[self.property_name] if isinstance(kwargs[self.property_name], list) else [kwargs[self.property_name]]
+      elif len(args) > 0:
+        record = args[0] if isinstance(args[0], list) else [args[0]]
+      else:
+        raise Exception("Property \"{0}\" not found and args={1} kwargs={2}".format(self.property_name, args, kwargs))
+
+
+      max_record_count = self.operation_constraints["record_count"]["value"]
+      should_execute_batch = "record_count" in self.operation_constraints and \
+                             (num_queued_operations + len(record)) >= max_record_count 
+
+      if should_execute_batch:
+        num_remaining_batch_records = max_record_count - num_queued_operations
+        if num_remaining_batch_records > 0:
+          logger.info("Queueing remaining {0} record for a total of {1}".format(num_remaining_batch_records, max_record_count))
+          self.batch_client.queued_operations[self.operation_category] += record[:num_remaining_batch_records]
+          del record[:num_remaining_batch_records]
+
+        self.batch_client._execute(self.operation_category)
+
+      if record:
+        self.batch_client.queued_operations[self.operation_category] += record
+        logger.info("Queued {0} record(s) category={1} ({2} of {3})".format(len(record), self.operation_category, num_queued_operations + 1, max_record_count))
+
+
+  def __init__(self, governance_model, record_type_predicate = None, last_resort = False, dry_run = False, *args, **kwargs):
+    """
+    Constructor
+
+    Args:
+      governance_model: The governance model from which decisions should be based on
+      record_type_predicate: Predicate that checks whether a given record type should be batched (optional)
+    """
+    self.client = NetsuiteApiClient(*args, **kwargs)
+
+    # Store a reference to the governance model
+    self.governance_model = governance_model
+
+    # Record type batch selector
+    self.record_type_predicate = record_type_predicate or (lambda x: True)
+
+    self.dry_run = dry_run
+
+    # Try to execute batch operations before the object is delete
+    self.last_resort = last_resort
+
+    # Dictionary to keep track of the different operation types
+    self.queued_operations = {}
+    for operation_category in self.governance_model.get_batchable_operation_categories():
+      self.queued_operations[operation_category] = []
+
+  def __getattr__(self, name):
+    if not hasattr(self.client, name):
+      raise Exception("Netsuite API client does not support the attribute={0}".format(name) )
+
+    if self.governance_model.is_operation_batchable(name):
+      operation_category = self.governance_model.get_operation_category(name)
+      return NetsuiteApiBatchClient.BatchableOperation(self, NetsuiteApiClient, name)
+
+    return getattr(self.client, name)
+
+
+  def execute(self):
+    """
+    Execute all pending batch operations
+    """
+    for operation_category, record in self.queued_operations.items():
+      if not record:
+        continue
+
+      self._execute(operation_category)    
+
+  def _execute(self, operation_category):
+    """
+    Execute a batch operation for all record belonging to an operation category
+
+    Args:
+      operation_category: Category of the operation to batch execute
+    """
+
+    batch_method_name = operation_category + 'List'
+    operation_category_records = self.queued_operations[operation_category]
+    logger.info("Executing batch operation {0} for category {1} with {2} record(s)".format(batch_method_name, operation_category, len(operation_category_records)))
+    if not self.dry_run:
+      getattr(self.client, batch_method_name)(record=operation_category_records)
+    del self.queued_operations[operation_category][:]
+
+
+  def __del__(self):
+    """
+    Destructor
+    """
+    
+    if self.last_resort:
+      logger.info("Executing last resort batch operations")
+      self.execute()

@@ -236,3 +236,10 @@ class GetSelectValueFilterOperator(object):
 
 class SignatureAlgorithm(object):
 	pass
+
+class AsyncStatusType(object):
+	FAILED = "failed"
+	FINISHED_WITH_ERRORS = "finishedWithErrors"
+	PENDING = "pending"
+	PROCESSING = "processing"
+	FINISHED = "finished"
