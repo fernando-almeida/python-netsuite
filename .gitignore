@@ -12,3 +12,4 @@ output/*
 archive/
 *.pyc
 tox.ini.*
+dist

@@ -99,6 +99,35 @@ ApiConfig = namedtuple('ApiConfig', [
     'passport'
 ])
 
+def build_api_config_dict_from_env():
+    """Create API coniguration dict from env vars."""
+    config = {
+        "wsdlUrl": os.getenv('NETSUITE.WSDL_URL'),
+        "applicationId": os.getenv('NETSUITE.APPLICATION_ID'),
+        "passportType": os.getenv('NETSUITE.PASSPORT_TYPE')
+    }
+    passport_type = config['passportType'].lower().strip()
+    if passport_type == 'tba':
+        config["tokenPassport"] = {
+            "account": os.getenv('NETSUITE.TOKEN_PASSPORT.ACCOUNT'),
+            "consumerKey": os.getenv('NETSUITE.TOKEN_PASSPORT.CONSUMER_KEY'),
+            "consumerSecret": os.getenv('NETSUITE.TOKEN_PASSPORT.CONSUMER_SECRET'),
+            "tokenId": os.getenv('NETSUITE.TOKEN_PASSPORT.TOKEN_ID'),
+            "tokenSecret": os.getenv('NETSUITE.TOKEN_PASSPORT.TOKEN_SECRET'),
+            "hashAlgorithm": os.getenv('NETSUITE.TOKEN_PASSPORT.HASH_ALGORITHM')
+        }
+    elif passport_type == 'nlauth':
+        config["passport"] = {
+            "email": os.getenv('NETSUITE.PASSPORT.EMAIL'),
+            "password": os.getenv('NETSUITE.PASSPORT.PASSWORD'),
+            "role": os.getenv('NETSUITE.PASSPORT.ROLE'),
+            "account": os.getenv('NETSUITE.PASSPORT.ACCOUNT')
+        }
+    else:
+        raise Exception("Invalid passport type {}".format(passport_type))
+    return config
+
+
 def parse_api_config(config={}):
     """Parse API configuration from dict.
 
@@ -107,26 +136,24 @@ def parse_api_config(config={}):
     Returns:
         ApiConfig instance
     """
-    wsdl_url = os.getenv("NETSUITE.WSDL_URL", config.get('wsdlUrl'))
-    application_id = os.getenv("NETSUITE.APPLICATION_ID", config.get('applicationId'))
-    passport_type = os.getenv("NETSUITE.PASSPORT_TYPE", config.get('passportType')).lower().strip()
-    passport_config = config.get('passport', {})
+    wsdl_url = os.getenv("NETSUITE.WSDL_URL") or config['wsdlUrl']
+    application_id = os.getenv("NETSUITE.APPLICATION_ID") or config['applicationId']
+    passport_type = (os.getenv("NETSUITE.PASSPORT_TYPE") or config['passportType']).lower().strip()
     passport = None
     if passport_type == 'nlauth':
         passport = Passport(
-            email=os.getenv("NETSUITE.PASSPORT.EMAIL", passport_config.get('email')),
-            password=os.getenv("NETSUITE.PASSPORT.PASSWORD", passport_config.get('password')),
-            account=os.getenv("NETSUITE.PASSPORT.ACCOUNT", passport_config.get('account')),
-            role=os.getenv("NETSUITE.PASSPORT.ROLE", passport_config.get('role')))
+            email=os.getenv("NETSUITE.PASSPORT.EMAIL") or config['passport']['email'],
+            password=os.getenv("NETSUITE.PASSPORT.PASSWORD") or config['passport']['password'],
+            account=os.getenv("NETSUITE.PASSPORT.ACCOUNT") or config['passport']['account'],
+            role=os.getenv("NETSUITE.PASSPORT.ROLE") or config['passport']['role'])
     elif passport_type == 'tba':
         passport = TokenPassport(
-            account=os.getenv("NETSUITE.TOKEN_PASSPORT.ACCOUNT", passport_config.get('account')),
-            consumer_key=os.getenv("NETSUITE.TOKEN_PASSPORT.CONSUMER_KEY", passport_config.get('consumerKey')),
-            consumer_secret=os.getenv("NETSUITE.TOKEN_PASSPORT.CONSUMER_SECRET", passport_config.get('consumerSecret')),
-            token_id=os.getenv("NETSUITE.TOKEN_PASSPORT.TOKEN_ID", passport_config.get('tokenId')),
-            token_secret=os.getenv("NETSUITE.TOKEN_PASSPORT.TOKEN_SECRET", passport_config.get('tokenSecret')),
-            hash_algorithm=os.getenv("NETSUITE.TOKEN_PASSPORT.HASH_ALGORITHM",
-                                     passport_config.get('hashAlgorithm', DEFAULT_HASH_ALGORITHM)))
+            account=os.getenv("NETSUITE.TOKEN_PASSPORT.ACCOUNT") or config['tokenPassport']['account'],
+            consumer_key=os.getenv("NETSUITE.TOKEN_PASSPORT.CONSUMER_KEY") or config['tokenPassport']['consumerKey'],
+            consumer_secret=os.getenv("NETSUITE.TOKEN_PASSPORT.CONSUMER_SECRET") or config['tokenPassport']['consumerSecret'],
+            token_id=os.getenv("NETSUITE.TOKEN_PASSPORT.TOKEN_ID") or config['tokenPassport']['tokenId'],
+            token_secret=os.getenv("NETSUITE.TOKEN_PASSPORT.TOKEN_SECRET") or config['tokenPassport']['tokenSecret'],
+            hash_algorithm=os.getenv("NETSUITE.TOKEN_PASSPORT.HASH_ALGORITHM") or config['tokenPassport']['hashAlgorithm'])
     else:
         raise Exception('Invalid passport type {}'.format(passport_type))
     api_config = ApiConfig(
