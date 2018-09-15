@@ -1,6 +1,5 @@
-"""
-Product search
-"""
+"""Product search."""
+
 from netsuite.service import (
     ItemSearchBasic,
     SearchMultiSelectField,
@@ -13,10 +12,12 @@ from netsuite.utils import (
 
 
 def get_product(internal_id):
+    """Get the product with the given internal identifier."""
     return get_record_by_type('inventoryItem', internal_id)
 
 
 def list_products(internal_ids):
+    """List products with the given internal ids."""
     id_references = [RecordRef(internalId=id) for id in internal_ids]
     item_search = ItemSearchBasic(
         internalId=SearchMultiSelectField(
