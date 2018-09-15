@@ -1,9 +1,10 @@
-import netsuite.api.types
+"""Customer operations."""
+
+from .types import RecordType
 
 
 def get_customer(client, internal_id):
-    """
-    Get a customer record using its unique internal identifier
+    """Get a customer record using its unique internal identifier.
 
     Args:
         client: Netsuite API client
@@ -13,5 +14,3 @@ def get_customer(client, internal_id):
         Customer instance if found or None otherwise
     """
     return get_record_by_type(RecordType.Customer, internal_id)
-
-
