@@ -50,7 +50,7 @@ class NetsuiteAuthTestCase(unittest.TestCase):
         client = NetsuiteApiClient(
             api_config=api_config)
         search_type = client.models['Common:EmployeeSearchBasic']()
-        client.search(search_type)
+        client.search_all(search_type)
 
 if __name__ == "__main__":
     unittest.main()
