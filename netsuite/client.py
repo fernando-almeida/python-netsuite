@@ -590,10 +590,9 @@ class NetsuiteApiClient(object):
 
         next_page = search_result.pageIndex + 1
         while next_page <= search_result.totalPages:
-
             LOGGER.debug('Fetching page %d', next_page)
             # nextSearchType = SearchMoreWithIdRequest(searchId = searchResult.searchId, pageIndex= nextPage)
-
+            soap_headers.update(self._build_soap_passport_header())
             response = self.service.searchMoreWithId(
                 searchId=search_result.searchId,
                 pageIndex=next_page,
