@@ -975,7 +975,7 @@ class NetsuiteApiClient(object):
             return {
                 'tokenPassport': self._make_token_passport(self.api_config.passport)
             }
-        if self.api_config.passport_type == 'nltauth':
+        if self.api_config.passport_type == 'nlauth':
             return {
                 'applicationInfo': self.application_info,
                 'passport': self._make_passport(self.api_config.passport)
